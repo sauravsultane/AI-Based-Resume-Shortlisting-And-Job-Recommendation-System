@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                     <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i> User Login</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-user text-primary"></i></span>
+                                <input type="text" name="username" class="form-control" placeholder="Enter username" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-lock text-primary"></i></span>
+                                <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                             <button type="submit" class="btn btn-primary btn-lg shadow-sm">Login <i class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-light py-3">
+                    <p class="mb-0 text-muted">New here? <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">Create an Account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-success text-white text-center py-4">
+                     <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i> Join AI Recruiter</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">First Name</label>
+                                <input type="text" name="first_name" class="form-control" placeholder="First Name" required value="{{ form.first_name.value|default:'' }}">
+                                <div class="text-danger small">{{ form.first_name.errors }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Last Name</label>
+                                <input type="text" name="last_name" class="form-control" placeholder="Last Name" required value="{{ form.last_name.value|default:'' }}">
+                                <div class="text-danger small">{{ form.last_name.errors }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-envelope text-success"></i></span>
+                                <input type="email" name="email" class="form-control" placeholder="name@example.com" required value="{{ form.email.value|default:'' }}">
+                            </div>
+                            <div class="text-danger small">{{ form.email.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Choose Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-user text-success"></i></span>
+                                <input type="text" name="username" class="form-control" placeholder="Username" required value="{{ form.username.value|default:'' }}">
+                            </div>
+                             <div class="text-danger small">{{ form.username.errors }}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold small text-muted">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-lock text-success"></i></span>
+                                    <input type="password" name="password" class="form-control" placeholder="******" required>
+                                </div>
+                                <div class="text-danger small">{{ form.password.errors }}</div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold small text-muted">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-lock text-success"></i></span>
+                                    <input type="password" name="confirm_password" class="form-control" placeholder="******" required>
+                                </div>
+                                <div class="text-danger small">{{ form.confirm_password.errors }}</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                             <button type="submit" class="btn btn-success btn-lg shadow-sm">Create Account <i class="fas fa-check-circle ms-2"></i></button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-light py-3">
+                    <p class="mb-0 text-muted">Already have an account? <a href="{% url 'login' %}" class="text-success fw-bold text-decoration-none">Login Here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

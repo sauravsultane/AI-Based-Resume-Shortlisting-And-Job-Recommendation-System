@@ -1,0 +1,50 @@
+### Django / Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.log
+
+# Django specific
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+### Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+### OS-specific files
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+### Python tooling
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+### Backup / misc
+*.bak
+*.tmp
+*.orig
+*.log
+

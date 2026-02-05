@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="text-center py-5 mb-5 bg-white">
+    <div class="container py-5">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8">
+                <div class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 rounded-pill fw-bold">
+                    <i class="fas fa-magic me-1"></i> Next Gen Hiring
+                </div>
+                <h1 class="display-3 fw-bold mb-4">
+                    HIRE SMARTER WITH <br>
+                    <span class="text-primary bg-light px-3 rounded">AI PRECISION</span>
+                </h1>
+                <p class="lead text-muted mb-5 px-lg-5">
+                    Stop sifting through thousands of resumes manually. Our AI analyzes, scores, and ranks candidates instantly based on skills and experience matches.
+                </p>
+                
+                <div class="d-flex justify-content-center gap-3">
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4 py-2 shadow-sm fw-bold">
+                            <i class="fas fa-rocket me-2"></i> Get Started
+                        </a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-dark btn-lg px-4 py-2 fw-bold">
+                            <i class="fas fa-sign-in-alt me-2"></i> Login
+                        </a>
+                    {% else %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg px-5 py-3 shadow fw-bold">
+                            <i class="fas fa-tachometer-alt me-2"></i> Go to Dashboard
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container px-4 py-5" id="features">
+        <h2 class="text-center fw-bold mb-5">Why Choose AI Recruiter?</h2>
+        <div class="row g-4 py-2 row-cols-1 row-cols-lg-3">
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-file-invoice fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Instant Parsing</h4>
+                        <p class="text-muted">Extract data from PDF resumes automatically. Identify skills, education, and experience in seconds.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-bullseye fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Smart Matching</h4>
+                        <p class="text-muted">Our AI calculates a match score for every applicant against your job description. Focus only on top talent.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon bg-info bg-gradient text-white rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Skill Gap Analysis</h4>
+                        <p class="text-muted">Identify missing skills in candidates and get recommendations to upskill or filter effectively.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats / Trust -->
+<section class="py-5">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-3 mb-3">
+                <h2 class="fw-bold text-primary">98%</h2>
+                <p class="text-muted">Accuracy Rate</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h2 class="fw-bold text-primary">10x</h2>
+                <p class="text-muted">Faster Hiring</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h2 class="fw-bold text-primary">24/7</h2>
+                <p class="text-muted">Automated Screening</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

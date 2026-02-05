@@ -1,0 +1,97 @@
+{% extends 'hr_base.html' %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'hr_dashboard' %}" class="text-decoration-none text-muted"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>{{ job.title }}</h2>
+        <h5 class="text-muted">{{ job.company }} | {{ job.location }}</h5>
+        <div class="mt-2">
+            <span class="badge bg-secondary">{{ job.experience }} Exp</span>
+            <span class="badge bg-secondary">{{ job.salary }}</span>
+            <span class="badge bg-info text-dark">{{ applications.count }} Applicants</span>
+        </div>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="#" class="btn btn-outline-primary"><i class="fas fa-edit"></i> Edit Job</a>
+        <button class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i> Close Job</button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Applicants List</h5>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary">Rank by AI Score</button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Candidate</th>
+                    <th>Applied Date</th>
+                    <th>AI Match Score</th>
+                    <th>Status</th>
+                    <th>Resume</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td>
+                        <div class="fw-bold">
+                            <a href="{% url 'view_applicant' app.applicant_profile.id %}" class="text-decoration-none text-dark hover-primary">
+                                {{ app.applicant_profile.first_name }} {{ app.applicant_profile.last_name }}
+                            </a>
+                        </div>
+                        <div class="small text-muted">{{ app.user.email }}</div>
+                    </td>
+                    <td>{{ app.applied_date|date:"M d, Y" }}</td>
+                    <td>
+                        <!-- Placeholder for dynamic AI Match Score -->
+                         {% if app.match_score > 80 %}
+                            <span class="badge bg-success">{{ app.match_score }}%</span>
+                        {% elif app.match_score > 50 %}
+                            <span class="badge bg-warning text-dark">{{ app.match_score }}%</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ app.match_score }}%</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.status == 'PENDING' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% elif app.status == 'SHORTLISTED' %}
+                            <span class="badge bg-success">Shortlisted</span>
+                        {% elif app.status == 'REJECTED' %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.applicant_profile.resume_file %}
+                            <a href="{{ app.applicant_profile.resume_file.url }}" target="_blank" class="text-info"><i class="fas fa-file-pdf"></i> PDF</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex">
+                             <a href="{% url 'update_status' app.id 'SHORTLISTED' %}" class="btn btn-sm btn-outline-success me-2" title="Shortlist"><i class="fas fa-check"></i></a>
+                             <a href="{% url 'update_status' app.id 'REJECTED' %}" class="btn btn-sm btn-outline-danger" title="Reject"><i class="fas fa-times"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No applicants for this job yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

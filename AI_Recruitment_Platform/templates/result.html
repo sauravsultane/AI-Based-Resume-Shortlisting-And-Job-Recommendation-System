@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <!-- Profile Card -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h3>{{ applicant.first_name }} {{ applicant.last_name }}</h3>
+                <h5 class="text-muted">{{ applicant.predicted_category }}</h5>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Score</h6>
+                        <h2 class="text-success">{{ applicant.resume_score }}</h2>
+                    </div>
+                    <div class="col-6">
+                        <h6>Level</h6>
+                        <h4 class="text-info">{{ applicant.experience_level }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-primary text-white">Extracted Skills</div>
+            <div class="card-body">
+                {% for skill in skills %}
+                    <span class="badge bg-secondary me-1 mb-1">{{ skill }}</span>
+                {% empty %}
+                    <span class="text-muted">No skills detected.</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="col-md-8">
+        <h3 class="mb-4">Recommended Jobs</h3>
+        {% if jobs %}
+            {% for job in jobs %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ job.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ job.company }} | {{ job.location }}</h6>
+                    <p class="card-text">{{ job.description|truncatewords:30 }}</p>
+                    <a href="{% url 'apply_job' job.id %}" class="btn btn-sm btn-primary">Apply Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-warning">No jobs found matching your category.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

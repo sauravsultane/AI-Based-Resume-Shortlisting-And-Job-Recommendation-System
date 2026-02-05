@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Recruitment Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .navbar-brand { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand text-primary" href="{% url 'index' %}"><i class="fas fa-robot"></i> AI Recruiter</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    {% if user.is_superuser %}
+                        <li class="nav-item"><a class="nav-link text-dark fw-medium px-3" href="{% url 'hr_dashboard' %}">HR Dashboard</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link text-dark fw-medium px-3" href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark fw-medium px-3" href="{% url 'upload_resume' %}">Analyze Resume</a></li>
+                    {% endif %}
+                    <li class="nav-item ms-2">
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger rounded-pill px-4">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item ms-2"><a class="btn btn-primary rounded-pill px-4 shadow-sm" href="{% url 'register' %}">Register</a></li>
+                    <li class="nav-item ms-2"><a class="btn btn-outline-dark rounded-pill px-3" href="{% url 'hr_login' %}">HR Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Toast Notifications -->
+{% if messages %}
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    {% for message in messages %}
+        <div class="toast align-items-center text-white bg-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {% if message.tags == 'success' %}<i class="fas fa-check-circle me-2"></i>{% endif %}
+                    {% if message.tags == 'error' %}<i class="fas fa-exclamation-circle me-2"></i>{% endif %}
+                    {% if message.tags == 'warning' %}<i class="fas fa-exclamation-triangle me-2"></i>{% endif %}
+                    {% if message.tags == 'info' %}<i class="fas fa-info-circle me-2"></i>{% endif %}
+                    {{ message }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl, { delay: 5000 })
+        })
+        toastList.forEach(toast => toast.show())
+    });
+</script>
+{% endif %}
+
+<div class="container main-content mt-4">
+    {% block content %}
+    {% endblock %}
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

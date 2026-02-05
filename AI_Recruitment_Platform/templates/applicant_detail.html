@@ -1,0 +1,131 @@
+{% extends base_template|default:'hr_base.html' %}
+{% load static %}
+
+{% block content %}
+{% if request.user.is_superuser %}
+<div class="mb-3">
+    <button onclick="history.back()" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back</button>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Sidebar: Personal Info -->
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-secondary"></i>
+                </div>
+                <h4 class="card-title mb-1">{{ applicant.first_name }} {{ applicant.last_name }}</h4>
+                <p class="text-muted mb-2">{{ applicant.predicted_category }}</p>
+                <span class="badge bg-primary mb-3">{{ applicant.experience_level|default:"Entry Level" }}</span>
+                
+                <hr>
+                
+                <div class="test-start text-start">
+                    <p class="mb-2"><i class="fas fa-envelope me-2 text-muted"></i> {{ applicant.user.email }}</p>
+                    <p class="mb-2"><i class="fas fa-phone me-2 text-muted"></i> {{ applicant.phone|default:"Not provided" }}</p>
+                    <p class="mb-2"><i class="fas fa-map-marker-alt me-2 text-muted"></i> {{ applicant.location|default:"Not provided" }}</p>
+                    <p class="mb-2"><i class="fas fa-language me-2 text-muted"></i> {{ applicant.languages|default:"Not provided" }}</p>
+                </div>
+                
+                <hr>
+                
+                {% if applicant.resume_file %}
+                <a href="{{ applicant.resume_file.url }}" target="_blank" class="btn btn-primary w-100"><i class="fas fa-file-pdf me-2"></i> View Resume</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- AI Stats -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-white fw-bold">AI Analysis</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>Profile Score</span>
+                    <span class="badge bg-success">{{ applicant.resume_score }}%</span>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ applicant.resume_score }}%"></div>
+                </div>
+                
+                <div class="mb-2"><strong>Page Count:</strong> {{ applicant.page_count }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content: Education, Skills, Portfolio -->
+    <div class="col-md-8">
+        <!-- Skills -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-white fw-bold"><i class="fas fa-tools me-2 text-primary"></i> Skills</div>
+            <div class="card-body">
+                {% if skills %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in skills %}
+                            <span class="badge bg-light text-dark border">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No specific skills parsed.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Education -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-white fw-bold"><i class="fas fa-graduation-cap me-2 text-warning"></i> Education</div>
+            <div class="card-body">
+                {% if applicant.education_degree %}
+                    <h5>{{ applicant.education_degree }}</h5>
+                    <p class="text-muted mb-0">{{ applicant.education_institution }}</p>
+                {% else %}
+                    <p class="text-muted">Education details not updated.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Projects -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-white fw-bold"><i class="fas fa-project-diagram me-2 text-info"></i> Projects</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for project in applicant.projects.all %}
+                    <li class="list-group-item">
+                        <h6 class="mb-1">{{ project.title }}</h6>
+                        {% if project.link %}
+                            <a href="{{ project.link }}" target="_blank" class="small text-decoration-none"><i class="fas fa-external-link-alt"></i> View Link</a>
+                        {% endif %}
+                        <p class="small text-muted mb-0 mt-1">{{ project.description }}</p>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted py-3">No projects added.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Certifications -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-white fw-bold"><i class="fas fa-certificate me-2 text-success"></i> Certifications</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for cert in applicant.certifications.all %}
+                    <li class="list-group-item">
+                        <h6 class="mb-1">{{ cert.title }}</h6>
+                        {% if cert.link %}
+                            <a href="{{ cert.link }}" target="_blank" class="small text-decoration-none"><i class="fas fa-external-link-alt"></i> View Credential</a>
+                        {% endif %}
+                        {% if cert.issue_date %}
+                            <span class="small text-muted d-block mt-1">Date: {{ cert.issue_date }}</span>
+                        {% endif %}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted py-3">No certifications added.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

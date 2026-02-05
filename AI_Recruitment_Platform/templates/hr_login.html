@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4 border-warning">
+            <div class="text-center mb-4">
+                <i class="fas fa-user-tie fa-3x text-warning"></i>
+                <h3 class="mt-2">HR Portal Login</h3>
+                <p class="text-muted">Authorized Personnel Only</p>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-warning w-100 fw-bold">Login to Dashboard</button>
+            </form>
+            
+            <div class="mt-3 text-center">
+                <a href="{% url 'hr_register' %}" class="fw-bold text-warning">New HR? Register Here</a>
+                <br>
+                <a href="{% url 'login' %}" class="small text-muted mt-2 d-inline-block">Candidate Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

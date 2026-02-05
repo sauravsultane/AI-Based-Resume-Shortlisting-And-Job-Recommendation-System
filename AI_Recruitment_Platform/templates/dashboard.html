@@ -1,0 +1,155 @@
+{% extends 'candidate_base.html' %}
+{% load static %}
+
+{% block content %}
+    <h2 class="mb-4">Dashboard</h2>
+
+    {% if applicant %}
+        <!-- Resume Score Card -->
+        <div class="card mb-4 shadow-sm border-0 bg-primary text-white">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="fw-bold">Your Resume Score</h2>
+                        <p class="mb-0 opacity-75">Based on AI analysis of your structure, skills, and impact.</p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <h1 class="display-3 fw-bold">{{ applicant.resume_score }}<span class="fs-4">%</span></h1>
+                        <span class="badge bg-light text-primary">{{ applicant.experience_level }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-Category Tags Card -->
+        {% if applicant.category_scores %}
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-tags me-2"></i>Your Skill Categories</h5>
+                <p class="text-muted small mb-3">AI detected multiple skill areas based on your resume</p>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for category, confidence in applicant.category_scores.items %}
+                        {% if confidence >= 0.3 %}
+                            {% if category == applicant.predicted_category %}
+                                <span class="badge bg-primary fs-6 px-3 py-2">
+                                    {{ category }} 
+                                    <span class="badge bg-light text-primary ms-1">Primary</span>
+                                </span>
+                            {% elif confidence >= 0.5 %}
+                                {% widthratio confidence 1 100 as confidence_pct %}
+                                <span class="badge bg-success fs-6 px-3 py-2">
+                                    {{ category }} 
+                                    <small class="opacity-75">({{ confidence_pct }}%)</small>
+                                </span>
+                            {% else %}
+                                {% widthratio confidence 1 100 as confidence_pct %}
+                                <span class="badge bg-secondary fs-6 px-3 py-2">
+                                    {{ category }} 
+                                    <small class="opacity-75">({{ confidence_pct }}%)</small>
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Suggestions -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white fw-bold"><i class="fas fa-lightbulb text-warning me-2"></i> AI Suggestions</div>
+                    <div class="card-body">
+                        {% if suggestions %}
+                            <ul class="list-group list-group-flush">
+                                {% for tip in suggestions %}
+                                    <li class="list-group-item border-0 px-0 py-2"><i class="fas fa-check-circle text-success me-2"></i> {{ tip }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-success text-center my-4"><i class="fas fa-check-double fa-2x mb-2"></i><br>Great job! Your resume looks strong.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Missing/Recommended Skills -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white fw-bold"><i class="fas fa-tools text-secondary me-2"></i> Skill Analysis</div>
+                    <div class="card-body">
+                       <h6 class="card-subtitle mb-2 text-success"><i class="fas fa-check me-1"></i> Detected Skills</h6>
+                       {% if skills %}
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                {% for skill in skills %}
+                                    <span class="badge bg-success text-white">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                       {% else %}
+                            <p class="text-muted small mb-3">No skills detected yet.</p>
+                       {% endif %}
+
+                       {% if missing_skills %}
+                            <hr>
+                            <h6 class="card-subtitle mb-2 text-warning"><i class="fas fa-star me-1"></i> Skills for Better Job Matching</h6>
+                            <p class="small text-muted mb-2">
+                                Add these skills to increase your match rate for 
+                                <strong class="text-primary">{{ applicant.predicted_category }}</strong> positions:
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                {% for skill in missing_skills %}
+                                    <span class="badge bg-warning text-dark px-3 py-2" style="font-size: 0.9rem;">
+                                        <i class="fas fa-plus-circle me-1"></i>{{ skill }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Multi-Category Skills (if applicable) -->
+                            {% if applicant.category_scores %}
+                                {% for category, confidence in applicant.category_scores.items %}
+                                    {% if confidence >= 0.5 and category != applicant.predicted_category %}
+                                        <div class="alert alert-light border-start border-4 border-info py-2 px-3 mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle text-info me-1"></i>
+                                                <strong>{{ category }}</strong> roles often require: 
+                                                <span class="text-dark">
+                                                    {% if "Frontend" in category %}
+                                                        React, Vue.js, CSS/SASS, Responsive Design
+                                                    {% elif "Backend" in category %}
+                                                        Node.js, REST APIs, Databases, Authentication
+                                                    {% elif "Full Stack" in category %}
+                                                        MERN/MEAN Stack, APIs, DevOps basics
+                                                    {% elif "Python" in category %}
+                                                        Django, Flask, FastAPI, pandas
+                                                    {% elif "Machine Learning" in category %}
+                                                        TensorFlow, PyTorch, scikit-learn, NLP
+                                                    {% elif "Data Scientist" in category %}
+                                                        SQL, Tableau, Statistics, Python
+                                                    {% elif "Cloud" in category %}
+                                                        AWS/Azure, Docker, Kubernetes, CI/CD
+                                                    {% elif "Mobile" in category %}
+                                                        React Native, Flutter, Swift/Kotlin
+                                                    {% endif %}
+                                                </span>
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                       {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- No Resume Uploaded State -->
+        <div class="text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135699.png" width="150" class="mb-4 opacity-50">
+            <h3>Welcome, {{ request.user.first_name }}!</h3>
+            <p class="lead text-muted">Upload your resume to get your AI Score and Job Matches.</p>
+            <a href="{% url 'upload_resume' %}" class="btn btn-primary btn-lg mt-3">Upload Resume</a>
+        </div>
+    {% endif %}
+{% endblock %}

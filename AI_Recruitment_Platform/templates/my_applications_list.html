@@ -1,0 +1,60 @@
+{% extends 'candidate_base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4">My Applications</h2>
+    
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th>Match Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ app.job.title }}</div>
+                            <div class="text-muted small">{{ app.job.location }}</div>
+                        </td>
+                        <td>{{ app.job.company }}</td>
+                        <td>{{ app.applied_date|date:"M d, Y" }}</td>
+                        <td>
+                            {% if app.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif app.status == 'SHORTLISTED' %}
+                                <span class="badge bg-success">Shortlisted</span>
+                            {% elif app.status == 'REJECTED' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                             {% if app.match_score >= 80 %}
+                                <span class="text-success fw-bold">{{ app.match_score }}%</span>
+                            {% elif app.match_score >= 50 %}
+                                <span class="text-warning fw-bold">{{ app.match_score }}%</span>
+                            {% else %}
+                                <span class="text-danger fw-bold">{{ app.match_score }}%</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">You haven't applied to any jobs yet.</p>
+                            <a href="{% url 'job_list' %}" class="btn btn-primary btn-sm">Browse Jobs</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

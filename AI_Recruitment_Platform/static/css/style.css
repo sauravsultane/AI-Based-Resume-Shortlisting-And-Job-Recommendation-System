@@ -1,0 +1,96 @@
+/* Sticky Footer Implementation */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1 0 auto; /* Allow grow, don't shrink */
+    width: 100%; /* Ensure full width container */
+}
+
+/* Footer Styling */
+.footer {
+    flex-shrink: 0; 
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding-top: 1.5rem; /* Reduced from 3rem */
+    padding-bottom: 0.5rem; /* Reduced from 1.5rem */
+    margin-top: auto; 
+    border-top: 4px solid #3498db;
+    width: 100%;
+}
+
+.footer h5 {
+    color: #3498db;
+    font-weight: 600;
+    margin-bottom: 0.5rem; /* Reduced */
+    text-transform: uppercase;
+    font-size: 1rem; /* Smaller heading */
+    letter-spacing: 0.5px;
+}
+
+.footer p {
+    color: #bdc3c7;
+    font-size: 0.85rem; /* Smaller text */
+    line-height: 1.4;
+}
+
+/* Horizontal Links */
+.footer-links li {
+    display: inline-block; /* Horizontal */
+    margin-left: 15px;
+}
+
+.footer-links a {
+    color: #bdc3c7;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #3498db;
+    text-decoration: underline;
+}
+
+.footer-bottom {
+    background-color: #243342;
+    padding: 0.5rem 0; /* Reduced padding */
+    margin-top: 1rem; /* Reduced margin */
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.footer-bottom p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.social-icons a {
+    color: #bdc3c7;
+    margin-left: 15px;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #3498db;
+}
+
+/* Hover effects for buttons/links in footer if any */
+.btn-footer {
+    background-color: #3498db;
+    color: white;
+    border: none;
+}
+.btn-footer:hover {
+    background-color: #2980b9;
+    color: white;
+}
