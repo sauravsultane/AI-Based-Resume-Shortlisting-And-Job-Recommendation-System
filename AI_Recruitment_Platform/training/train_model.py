@@ -62,7 +62,7 @@ def train():
     import matplotlib.pyplot as plt
     import seaborn as sns
     
-    X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_enc, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_enc, test_size=0.25, random_state=42)
     
     # Handle Class Imbalance with SMOTE
     print("Applying SMOTE for class balancing...")
@@ -198,7 +198,7 @@ def train_multi_label():
     tfidf = TfidfVectorizer(max_features=5000, stop_words='english', ngram_range=(1, 2))
     X_tfidf = tfidf.fit_transform(X)
     
-    X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_enc, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_enc, test_size=0.25, random_state=42)
     
     print("Applying SMOTE...")
     try:

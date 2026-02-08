@@ -98,6 +98,7 @@ def dashboard(request):
     suggestions = []
     missing_skills = []
     skills_list = []
+    job_skill_gaps = []  # New: Job-specific skill gaps
     
     if applicant and applicant.resume_file:
         # Parse skills string to list
@@ -123,12 +124,51 @@ def dashboard(request):
              
         suggestions = resume_parser.generate_suggestions(text, applicant.resume_score)
         missing_skills = resume_parser.get_missing_skills(applicant.predicted_category, text)
+        
+        # NEW: Calculate job-specific skill gaps from recent applications
+        from dashboard.models import JobApplication
+        import re
+        
+        # Helper function to normalize skill names for comparison
+        def normalize_skill(skill):
+            """Normalize skill name: lowercase, remove spaces/hyphens/dots"""
+            return re.sub(r'[\s\-\.\+]+', '', skill.lower().strip())
+        
+        # Normalize candidate's skills
+        skills_normalized = [normalize_skill(s) for s in skills_list]
+        
+        recent_applications = JobApplication.objects.filter(
+            user=request.user
+        ).select_related('job').order_by('-applied_date')[:5]  # Last 5 applications
+        
+        for application in recent_applications:
+            job = application.job
+            # Parse job required skills (comma-separated)
+            required_skills = [s.strip() for s in job.required_skills.split(',') if s.strip()]
+            
+            # Find missing skills (normalized comparison)
+            missing = []
+            for skill in required_skills:
+                # Compare normalized versions
+                if normalize_skill(skill) not in skills_normalized:
+                    missing.append(skill)
+            
+            if missing:
+                job_skill_gaps.append({
+                    'job_title': job.title,
+                    'company': job.company,
+                    'missing_skills': missing[:5],  # Limit to top 5 per job
+                    'match_score': application.match_score,
+                    'total_required': len(required_skills),
+                    'total_missing': len(missing)
+                })
 
     return render(request, 'dashboard.html', {
         'applicant': applicant,
         'suggestions': suggestions,
         'missing_skills': missing_skills,
-        'skills': skills_list
+        'skills': skills_list,
+        'job_skill_gaps': job_skill_gaps  # New context variable
     })
 
 @login_required

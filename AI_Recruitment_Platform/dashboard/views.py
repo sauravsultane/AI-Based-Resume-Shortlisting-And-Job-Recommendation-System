@@ -83,22 +83,55 @@ def update_application_status(request, application_id, status):
 def all_applicants(request):
     if not request.user.is_superuser:
         return redirect('dashboard')
-        
-    applications = JobApplication.objects.all().select_related('job', 'applicant_profile').order_by('-applied_date')
     
-    return render(request, 'all_applicants.html', {'applications': applications})
+    # Get sort parameter from URL (default: resume_score)
+    sort_by = request.GET.get('sort', 'resume_score')
+    
+    # Valid sort options
+    valid_sorts = {
+        'resume_score': '-applicant_profile__resume_score',  # AI Resume Quality Score
+        'match_score': '-match_score',  # Job-Resume Match Score
+        'date': '-applied_date',
+        'name': 'applicant_profile__first_name',
+    }
+    
+    order_field = valid_sorts.get(sort_by, '-applicant_profile__resume_score')
+    
+    applications = JobApplication.objects.all().select_related(
+        'job', 'applicant_profile'
+    ).order_by(order_field, '-applied_date')
+    
+    return render(request, 'all_applicants.html', {
+        'applications': applications,
+        'current_sort': sort_by
+    })
 
 @login_required
 def job_applications(request, job_id):
     if not request.user.is_superuser:
         return redirect('dashboard')
-        
+    
     job = get_object_or_404(Job, id=job_id)
-    applications = JobApplication.objects.filter(job=job).select_related('applicant_profile').order_by('-match_score', '-applied_date')
+    
+    # Get sort parameter from URL (default: resume_score for AI-powered ranking)
+    sort_by = request.GET.get('sort', 'resume_score')
+    
+    valid_sorts = {
+        'resume_score': '-applicant_profile__resume_score',  # AI Resume Quality Score
+        'match_score': '-match_score',  # Job-Resume Match Score  
+        'date': '-applied_date',
+    }
+    
+    order_field = valid_sorts.get(sort_by, '-applicant_profile__resume_score')
+    
+    applications = JobApplication.objects.filter(job=job).select_related(
+        'applicant_profile'
+    ).order_by(order_field, '-applied_date')
     
     return render(request, 'job_applications_list.html', {
         'job': job,
-        'applications': applications
+        'applications': applications,
+        'current_sort': sort_by
     })
 
 @login_required

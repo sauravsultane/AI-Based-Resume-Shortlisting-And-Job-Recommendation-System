@@ -2,9 +2,34 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>All Applicants</h2>
-    <div>
-        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+    <h2><i class="fas fa-users text-primary me-2"></i>All Applicants</h2>
+    <div class="d-flex gap-2">
+        <!-- AI Sort Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                <i class="fas fa-robot me-1"></i> AI Sort: 
+                {% if current_sort == 'resume_score' %}Resume Score
+                {% elif current_sort == 'match_score' %}Match Score
+                {% elif current_sort == 'date' %}Date
+                {% elif current_sort == 'name' %}Name
+                {% endif %}
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item {% if current_sort == 'resume_score' %}active{% endif %}" href="?sort=resume_score">
+                    <i class="fas fa-star text-warning me-2"></i>Resume Score (AI Quality)
+                </a></li>
+                <li><a class="dropdown-item {% if current_sort == 'match_score' %}active{% endif %}" href="?sort=match_score">
+                    <i class="fas fa-bullseye text-success me-2"></i>Match Score (Job Fit)
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item {% if current_sort == 'date' %}active{% endif %}" href="?sort=date">
+                    <i class="fas fa-calendar me-2"></i>Date Applied
+                </a></li>
+                <li><a class="dropdown-item {% if current_sort == 'name' %}active{% endif %}" href="?sort=name">
+                    <i class="fas fa-sort-alpha-down me-2"></i>Name
+                </a></li>
+            </ul>
+        </div>
         <button class="btn btn-outline-success btn-sm"><i class="fas fa-file-export"></i> Export CSV</button>
     </div>
 </div>
@@ -17,7 +42,8 @@
                     <th>Candidate</th>
                     <th>Applied For</th>
                     <th>Date</th>
-                    <th>Match Score</th>
+                    <th><i class="fas fa-star text-warning"></i> Resume Score</th>
+                    <th><i class="fas fa-bullseye text-success"></i> Match Score</th>
                     <th>Status</th>
                     <th>Resume</th>
                     <th>Actions</th>
@@ -44,6 +70,19 @@
                     <td>{{ app.job.title }}</td>
                     <td>{{ app.applied_date|date:"M d, Y" }}</td>
                     <td>
+                        <!-- AI Resume Score -->
+                        {% if app.applicant_profile.resume_score >= 80 %}
+                            <span class="badge bg-success rounded-pill">{{ app.applicant_profile.resume_score }}/100</span>
+                        {% elif app.applicant_profile.resume_score >= 60 %}
+                            <span class="badge bg-primary rounded-pill">{{ app.applicant_profile.resume_score }}/100</span>
+                        {% elif app.applicant_profile.resume_score >= 40 %}
+                            <span class="badge bg-warning text-dark rounded-pill">{{ app.applicant_profile.resume_score }}/100</span>
+                        {% else %}
+                            <span class="badge bg-danger rounded-pill">{{ app.applicant_profile.resume_score|default:"N/A" }}/100</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <!-- Job Match Score -->
                         {% if app.match_score >= 80 %}
                             <span class="text-success fw-bold">{{ app.match_score }}%</span>
                         {% elif app.match_score >= 50 %}
@@ -87,7 +126,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center py-5 text-muted">
+                    <td colspan="8" class="text-center py-5 text-muted">
                         <i class="fas fa-users-slash fa-2x mb-3"></i><br>
                         No applications received yet.
                     </td>

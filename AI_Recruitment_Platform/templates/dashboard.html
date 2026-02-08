@@ -143,6 +143,44 @@
             </div>
         </div>
 
+        <!-- NEW: Job-Specific Skill Gap Recommendations -->
+        {% if job_skill_gaps %}
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-white fw-bold">
+                <i class="fas fa-briefcase text-danger me-2"></i> Skill Gaps for Your Applications
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Skills you're missing for jobs you've applied to. Learn these to improve your match score!
+                </p>
+                {% for gap in job_skill_gaps %}
+                <div class="border rounded p-3 mb-3 {% if gap.match_score >= 70 %}border-success{% elif gap.match_score >= 50 %}border-warning{% else %}border-danger{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ gap.job_title }}</strong>
+                            <span class="text-muted small">at {{ gap.company }}</span>
+                        </div>
+                        <span class="badge {% if gap.match_score >= 70 %}bg-success{% elif gap.match_score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                            {{ gap.match_score|floatformat:0 }}% Match
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in gap.missing_skills %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2" style="font-size: 0.85rem;">
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ skill }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Missing {{ gap.total_missing }} of {{ gap.total_required }} required skills
+                    </small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
     {% else %}
         <!-- No Resume Uploaded State -->
         <div class="text-center py-5">
