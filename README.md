@@ -559,6 +559,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👥 Authors
 
 - **Saurav Sultane** - *Initial work* - [GitHub](https://github.com/sauravsultane)
+- **Om Autade** - *Initial work* - [GitHub](https://github.com/omautade045)
+- **Umesh Shingare** - *Initial work* - [GitHub](https://github.com/umeshshingare)
+- **Om Taskar** - *Initial work* - [GitHub](https://github.com/OmTaskar)
+- **Kalpesh Wagh** - *Initial work* - [GitHub](https://github.com/kalpeshwagh)
 
 ---
 
