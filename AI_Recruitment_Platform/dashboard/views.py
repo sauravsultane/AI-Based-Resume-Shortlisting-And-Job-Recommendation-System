@@ -1,3 +1,5 @@
+import csv
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -172,52 +174,137 @@ def view_applicant(request, applicant_id):
 def job_list(request):
     jobs = Job.objects.all().order_by('-posted_date')
     base_template = 'base.html'
-    
+    applied_job_ids = set()
+    no_jobs_found = False
+    missing_skills = []
+    candidate_category = None
+    candidate_skills = []
+
     if request.user.is_authenticated:
         if request.user.is_superuser:
             base_template = 'hr_base.html'
         else:
             base_template = 'candidate_base.html'
-    
+            applied_job_ids = set(
+                JobApplication.objects.filter(user=request.user)
+                .values_list('job_id', flat=True)
+            )
+
     if request.user.is_authenticated and not request.user.is_superuser:
         try:
             from app.models import Applicant
+            import ast
+            from app.prediction import resume_parser
+
             applicant = Applicant.objects.get(user=request.user)
-            if applicant.predicted_category:
-                # Filter by category
-                # Basic logic: Job title contains category keyword
-                # Ideally, this should use more advanced matching from prediction.py
-                keyword = applicant.predicted_category.split(' ')[0]
+            candidate_category = applicant.predicted_category
+
+            if candidate_category:
+                keyword = candidate_category.split(' ')[0]
                 jobs = jobs.filter(title__icontains=keyword)
-                
+
                 if not jobs.exists():
-                     messages.info(request, f"No specific jobs found matching your profile category ({applicant.predicted_category}). Showing all jobs.")
-                     jobs = Job.objects.all().order_by('-posted_date')
+                    # No matching jobs — show skill recommendations instead of all jobs
+                    no_jobs_found = True
+                    jobs = Job.objects.none()  # empty queryset
+
+                    # Get skills the candidate is missing for their category
+                    resume_text = applicant.resume_text or applicant.actual_skills
+                    missing_skills = resume_parser.get_missing_skills(candidate_category, resume_text) or []
+
+                    # Get candidate's current skills for display
+                    try:
+                        candidate_skills = ast.literal_eval(applicant.actual_skills)
+                    except (ValueError, SyntaxError):
+                        candidate_skills = []
             else:
-                 messages.info(request, "Please upload a resume to get personalized job recommendations.")
+                messages.info(request, "Please upload a resume to get personalized job recommendations.")
         except Applicant.DoesNotExist:
-            pass # Show all jobs if no profile yet
-            
-    return render(request, 'job_list.html', {'jobs': jobs, 'base_template': base_template})
-    jobs = Job.objects.all().order_by('-posted_date')
-    
-    if request.user.is_authenticated and not request.user.is_superuser:
-        try:
-            from app.models import Applicant
-            applicant = Applicant.objects.get(user=request.user)
-            if applicant.predicted_category:
-                # Filter by category
-                # Basic logic: Job title contains category keyword
-                # Ideally, this should use more advanced matching from prediction.py
-                keyword = applicant.predicted_category.split(' ')[0]
-                jobs = jobs.filter(title__icontains=keyword)
-                
-                if not jobs.exists():
-                     messages.info(request, f"No specific jobs found matching your profile category ({applicant.predicted_category}). Showing all jobs.")
-                     jobs = Job.objects.all().order_by('-posted_date')
-            else:
-                 messages.info(request, "Please upload a resume to get personalized job recommendations.")
-        except Applicant.DoesNotExist:
-            pass # Show all jobs if no profile yet
-            
-    return render(request, 'job_list.html', {'jobs': jobs})
+            pass
+
+    return render(request, 'job_list.html', {
+        'jobs': jobs,
+        'base_template': base_template,
+        'applied_job_ids': applied_job_ids,
+        'no_jobs_found': no_jobs_found,
+        'missing_skills': missing_skills,
+        'candidate_category': candidate_category,
+        'candidate_skills': candidate_skills,
+    })
+
+@login_required
+def export_csv(request):
+    """Export all applicants as a CSV file, sorted by match score (top candidates first)."""
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    # Get filter param — optionally export only shortlisted
+    status_filter = request.GET.get('status', 'ALL')  # ALL | SHORTLISTED | PENDING | REJECTED
+
+    applications = JobApplication.objects.all().select_related(
+        'job', 'applicant_profile', 'user'
+    ).order_by('-match_score', '-applicant_profile__resume_score')
+
+    if status_filter != 'ALL':
+        applications = applications.filter(status=status_filter)
+
+    # Build HTTP response with CSV content type
+    response = HttpResponse(content_type='text/csv')
+    filename = f'applicants_{status_filter.lower()}.csv'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    writer = csv.writer(response)
+
+    # Header row
+    writer.writerow([
+        'Position',
+        'Candidate Name',
+        'Email',
+        'Job Applied For',
+        'Company',
+        'Date Applied',
+        'Resume Score (/100)',
+        'Match Score (%)',
+        'Status',
+        'Experience Level',
+        'Predicted Category',
+        'Detected Skills',
+    ])
+
+    # Data rows
+    for rank, app in enumerate(applications, start=1):
+        profile = app.applicant_profile
+        if profile:
+            import ast
+            try:
+                skills = ast.literal_eval(profile.actual_skills)
+                skills_str = ', '.join(skills)
+            except (ValueError, SyntaxError):
+                skills_str = profile.actual_skills or ''
+
+            writer.writerow([
+                rank,
+                f"{profile.first_name} {profile.last_name}",
+                app.user.email,
+                app.job.title,
+                app.job.company,
+                app.applied_date.strftime('%b %d, %Y'),
+                profile.resume_score,
+                f"{app.match_score:.1f}",
+                app.get_status_display(),
+                profile.experience_level or 'N/A',
+                profile.predicted_category or 'N/A',
+                skills_str,
+            ])
+        else:
+            writer.writerow([
+                rank, 'N/A', app.user.email,
+                app.job.title, app.job.company,
+                app.applied_date.strftime('%b %d, %Y'),
+                'N/A', f"{app.match_score:.1f}",
+                app.get_status_display(),
+                'N/A', 'N/A', '',
+            ])
+
+    return response
+

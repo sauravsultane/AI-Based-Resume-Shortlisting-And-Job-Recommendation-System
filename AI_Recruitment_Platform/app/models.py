@@ -33,6 +33,9 @@ class Applicant(models.Model):
     actual_skills = models.TextField(blank=True, default='[]')
     recommended_skills = models.TextField(blank=True, default='[]')
 
+    # Cached raw resume text — populated on upload, reused to avoid repeated PDF reads
+    resume_text = models.TextField(blank=True, default='')
+
     
     upload_date = models.DateTimeField(default=timezone.now)
 

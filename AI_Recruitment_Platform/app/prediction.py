@@ -297,7 +297,9 @@ class ResumeParser:
         for skill in target_skills:
             if skill not in cleaned_text:
                 missing.append(skill.title())
-                
+
+        return missing
+
     def extract_contact_info(self, text):
         """
         Extract contact details (Email, Phone) from raw text.

@@ -30,7 +30,35 @@
                 </a></li>
             </ul>
         </div>
-        <button class="btn btn-outline-success btn-sm"><i class="fas fa-file-export"></i> Export CSV</button>
+        <!-- Export CSV Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown">
+                <i class="fas fa-file-csv me-1"></i> Export CSV
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><h6 class="dropdown-header">Export as CSV</h6></li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'export_csv' %}?status=ALL">
+                        <i class="fas fa-users text-primary me-2"></i>All Applicants
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'export_csv' %}?status=SHORTLISTED">
+                        <i class="fas fa-check-circle text-success me-2"></i>Shortlisted Only
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'export_csv' %}?status=PENDING">
+                        <i class="fas fa-clock text-warning me-2"></i>Pending Only
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'export_csv' %}?status=REJECTED">
+                        <i class="fas fa-times-circle text-danger me-2"></i>Rejected Only
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 

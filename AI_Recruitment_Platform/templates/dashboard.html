@@ -2,21 +2,22 @@
 {% load static %}
 
 {% block content %}
-    <h2 class="mb-4">Dashboard</h2>
+    <h2 class="mb-4" style="font-weight: 700; color: #111827;">Dashboard</h2>
 
     {% if applicant %}
-        <!-- Resume Score Card -->
-        <div class="card mb-4 shadow-sm border-0 bg-primary text-white">
-            <div class="card-body p-4">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h2 class="fw-bold">Your Resume Score</h2>
-                        <p class="mb-0 opacity-75">Based on AI analysis of your structure, skills, and impact.</p>
+        <!-- Resume Score Card (Mockup Style) -->
+        <div class="card mb-4" style="background: #4768f5; color: white; border-radius: 12px; box-shadow: 0 4px 14px rgba(71, 104, 245, 0.4);">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div style="flex: 1;">
+                    <h4 class="mb-1 fw-bold" style="font-size: 1.25rem;">Your Resume Score</h4>
+                    <p class="mb-3" style="font-size: 0.85rem; color: #d1dbfe;">AI-based evaluation of your profile</p>
+                    <div style="width: 250px; background: rgba(255,255,255,0.2); height: 8px; border-radius: 5px;">
+                        <div style="width: {{ applicant.resume_score }}%; background: white; height: 100%; border-radius: 5px;"></div>
                     </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <h1 class="display-3 fw-bold">{{ applicant.resume_score }}<span class="fs-4">%</span></h1>
-                        <span class="badge bg-light text-primary">{{ applicant.experience_level }}</span>
-                    </div>
+                </div>
+                <div class="text-end">
+                    <h1 class="display-5 fw-bold mb-0" style="line-height: 1;">{{ applicant.resume_score }}%</h1>
+                    <span class="badge" style="background: white; color: #4768f5; border-radius: 20px; font-weight: 600; font-size: 0.75rem; padding: 4px 10px; margin-top: 5px;">{{ applicant.experience_level|default:"Intermediate" }}</span>
                 </div>
             </div>
         </div>
@@ -78,7 +79,7 @@
             <div class="col-md-6 mb-4">
                 <div class="card h-100 shadow-sm">
                     <div class="card-header bg-white fw-bold"><i class="fas fa-tools text-secondary me-2"></i> Skill Analysis</div>
-                    <div class="card-body">
+                     <div class="card-body">
                        <h6 class="card-subtitle mb-2 text-success"><i class="fas fa-check me-1"></i> Detected Skills</h6>
                        {% if skills %}
                             <div class="d-flex flex-wrap gap-2 mb-3">
@@ -90,55 +91,76 @@
                             <p class="text-muted small mb-3">No skills detected yet.</p>
                        {% endif %}
 
+                       {# ── MISSING SKILLS SUGGESTION BOX (the marked area) ── #}
                        {% if missing_skills %}
-                            <hr>
-                            <h6 class="card-subtitle mb-2 text-warning"><i class="fas fa-star me-1"></i> Skills for Better Job Matching</h6>
-                            <p class="small text-muted mb-2">
-                                Add these skills to increase your match rate for 
-                                <strong class="text-primary">{{ applicant.predicted_category }}</strong> positions:
-                            </p>
-                            <div class="d-flex flex-wrap gap-2 mb-3">
-                                {% for skill in missing_skills %}
-                                    <span class="badge bg-warning text-dark px-3 py-2" style="font-size: 0.9rem;">
-                                        <i class="fas fa-plus-circle me-1"></i>{{ skill }}
-                                    </span>
-                                {% endfor %}
+                            <div class="mt-3 p-3 rounded-3 border border-warning border-2"
+                                 style="background: linear-gradient(135deg, #fffbea 0%, #fff3cd 100%);">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="me-2 fs-5">💡</span>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">Skills to Add to Your Resume</h6>
+                                        <small class="text-muted">
+                                            These skills are expected for
+                                            <strong class="text-primary">{{ applicant.predicted_category }}</strong>
+                                            roles but are missing from your resume.
+                                        </small>
+                                    </div>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for skill in missing_skills %}
+                                        <span class="badge px-3 py-2 fw-semibold"
+                                              style="background-color:#ff8c00; color:#fff; font-size:0.88rem; border-radius:20px;">
+                                            <i class="fas fa-plus-circle me-1"></i>{{ skill }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                                <p class="text-muted small mt-2 mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Adding these to your resume or profile will boost your AI match score.
+                                </p>
                             </div>
-                            
-                            <!-- Multi-Category Skills (if applicable) -->
-                            {% if applicant.category_scores %}
-                                {% for category, confidence in applicant.category_scores.items %}
-                                    {% if confidence >= 0.5 and category != applicant.predicted_category %}
-                                        <div class="alert alert-light border-start border-4 border-info py-2 px-3 mb-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-info-circle text-info me-1"></i>
-                                                <strong>{{ category }}</strong> roles often require: 
-                                                <span class="text-dark">
-                                                    {% if "Frontend" in category %}
-                                                        React, Vue.js, CSS/SASS, Responsive Design
-                                                    {% elif "Backend" in category %}
-                                                        Node.js, REST APIs, Databases, Authentication
-                                                    {% elif "Full Stack" in category %}
-                                                        MERN/MEAN Stack, APIs, DevOps basics
-                                                    {% elif "Python" in category %}
-                                                        Django, Flask, FastAPI, pandas
-                                                    {% elif "Machine Learning" in category %}
-                                                        TensorFlow, PyTorch, scikit-learn, NLP
-                                                    {% elif "Data Scientist" in category %}
-                                                        SQL, Tableau, Statistics, Python
-                                                    {% elif "Cloud" in category %}
-                                                        AWS/Azure, Docker, Kubernetes, CI/CD
-                                                    {% elif "Mobile" in category %}
-                                                        React Native, Flutter, Swift/Kotlin
-                                                    {% endif %}
-                                                </span>
-                                            </small>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
+                       {% else %}
+                            {% if skills %}
+                            <div class="mt-3 p-3 rounded-3 border border-success border-2"
+                                 style="background: linear-gradient(135deg, #f0fff4 0%, #d4edda 100%);">
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2 fs-5">✅</span>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-success">All Key Skills Found!</h6>
+                                        <small class="text-muted">Your resume covers the expected skills for your category.</small>
+                                    </div>
+                                </div>
+                            </div>
                             {% endif %}
                        {% endif %}
+
+                       {# Multi-Category hints #}
+                       {% if applicant.category_scores %}
+                           {% for category, confidence in applicant.category_scores.items %}
+                               {% if confidence >= 0.5 and category != applicant.predicted_category %}
+                                   <div class="alert alert-light border-start border-4 border-info py-2 px-3 mb-2 mt-3">
+                                       <small class="text-muted">
+                                           <i class="fas fa-info-circle text-info me-1"></i>
+                                           <strong>{{ category }}</strong> roles often require:
+                                           <span class="text-dark">
+                                               {% if "Frontend" in category %}React, Vue.js, CSS/SASS, Responsive Design
+                                               {% elif "Backend" in category %}Node.js, REST APIs, Databases, Authentication
+                                               {% elif "Full Stack" in category %}MERN/MEAN Stack, APIs, DevOps basics
+                                               {% elif "Python" in category %}Django, Flask, FastAPI, pandas
+                                               {% elif "Machine Learning" in category %}TensorFlow, PyTorch, scikit-learn, NLP
+                                               {% elif "Data Scientist" in category %}SQL, Tableau, Statistics, Python
+                                               {% elif "Cloud" in category %}AWS/Azure, Docker, Kubernetes, CI/CD
+                                               {% elif "Mobile" in category %}React Native, Flutter, Swift/Kotlin
+                                               {% endif %}
+                                           </span>
+                                       </small>
+                                   </div>
+                               {% endif %}
+                           {% endfor %}
+                       {% endif %}
                     </div>
+
                 </div>
             </div>
         </div>

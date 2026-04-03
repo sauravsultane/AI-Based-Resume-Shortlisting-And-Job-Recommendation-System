@@ -8,48 +8,39 @@
 </div>
 {% endif %}
 
-<div class="row">
+<div class="row pe-md-3">
     <!-- Sidebar: Personal Info -->
-    <div class="col-md-4">
-        <div class="card shadow mb-4">
-            <div class="card-body text-center">
-                <div class="mb-3">
-                    <i class="fas fa-user-circle fa-5x text-secondary"></i>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100" style="border-radius: 16px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: white;">
+            <div class="card-body text-center p-4 d-flex flex-column">
+                <div class="mb-4 mt-3">
+                    <img src="https://ui-avatars.com/api/?name={{ applicant.first_name }}+{{ applicant.last_name }}&background=4768f5&color=fff&size=120" 
+                         class="rounded-circle" width="100" height="100" alt="Avatar">
                 </div>
-                <h4 class="card-title mb-1">{{ applicant.first_name }} {{ applicant.last_name }}</h4>
-                <p class="text-muted mb-2">{{ applicant.predicted_category }}</p>
-                <span class="badge bg-primary mb-3">{{ applicant.experience_level|default:"Entry Level" }}</span>
+                <h4 class="mb-1 fw-bold" style="color: #111827;">{{ applicant.first_name }} {{ applicant.last_name }}</h4>
+                <p class="mb-2" style="color: #4b5563; font-size: 0.95rem;">{{ applicant.predicted_category|default:"Candidate" }}</p>
                 
-                <hr>
-                
-                <div class="test-start text-start">
-                    <p class="mb-2"><i class="fas fa-envelope me-2 text-muted"></i> {{ applicant.user.email }}</p>
-                    <p class="mb-2"><i class="fas fa-phone me-2 text-muted"></i> {{ applicant.phone|default:"Not provided" }}</p>
-                    <p class="mb-2"><i class="fas fa-map-marker-alt me-2 text-muted"></i> {{ applicant.location|default:"Not provided" }}</p>
-                    <p class="mb-2"><i class="fas fa-language me-2 text-muted"></i> {{ applicant.languages|default:"Not provided" }}</p>
+                <div>
+                    <span class="badge" style="background-color: #dbeafe; color: #1e40af; padding: 6px 16px; border-radius: 20px; font-weight: 500;">
+                        {{ applicant.experience_level|default:"Entry Level" }}
+                    </span>
                 </div>
                 
-                <hr>
+                <hr class="my-4" style="border-color: #e5e7eb;">
                 
-                {% if applicant.resume_file %}
-                <a href="{{ applicant.resume_file.url }}" target="_blank" class="btn btn-primary w-100"><i class="fas fa-file-pdf me-2"></i> View Resume</a>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- AI Stats -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-white fw-bold">AI Analysis</div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>Profile Score</span>
-                    <span class="badge bg-success">{{ applicant.resume_score }}%</span>
-                </div>
-                <div class="progress mb-3" style="height: 10px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ applicant.resume_score }}%"></div>
+                <div class="text-start mb-auto" style="color: #6b7280; font-size: 0.85rem;">
+                    <p class="mb-3 d-flex align-items-center"><i class="fas fa-envelope text-primary opacity-75 me-3" style="width: 15px;"></i> {{ applicant.user.email }}</p>
+                    <p class="mb-3 d-flex align-items-center"><i class="fas fa-phone-alt text-danger opacity-75 me-3" style="width: 15px;"></i> {{ applicant.phone|default:"Not provided" }}</p>
+                    <p class="mb-3 d-flex align-items-center"><i class="fas fa-map-marker-alt text-danger opacity-75 me-3" style="width: 15px;"></i> {{ applicant.location|default:"Not provided" }}</p>
                 </div>
                 
-                <div class="mb-2"><strong>Page Count:</strong> {{ applicant.page_count }}</div>
+                <div class="mt-4 pt-2">
+                    {% if applicant.resume_file %}
+                    <a href="{{ applicant.resume_file.url }}" target="_blank" class="btn text-white w-100 py-2 fw-semibold" style="background: #4768f5; border-radius: 8px;">View Resume</a>
+                    {% else %}
+                    <button class="btn btn-secondary w-100 py-2 fw-semibold" disabled style="border-radius: 8px;">No Resume Attached</button>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -57,75 +48,86 @@
     <!-- Main Content: Education, Skills, Portfolio -->
     <div class="col-md-8">
         <!-- Skills -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-white fw-bold"><i class="fas fa-tools me-2 text-primary"></i> Skills</div>
-            <div class="card-body">
+        <div class="card mb-3" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3" style="color: #111827;">Skills</h6>
                 {% if skills %}
                     <div class="d-flex flex-wrap gap-2">
                         {% for skill in skills %}
-                            <span class="badge bg-light text-dark border">{{ skill }}</span>
+                            {% cycle '#e0e7ff' '#f3e8ff' '#dcfce7' '#f3f4f6' as bg_color silent %}
+                            {% cycle '#3730a3' '#6b21a8' '#166534' '#374151' as text_color silent %}
+                            <span class="badge" style="background-color: {{ bg_color }}; color: {{ text_color }}; padding: 8px 16px; border-radius: 20px; font-weight: 500; font-size: 0.85rem;">{{ skill }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-muted">No specific skills parsed.</p>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">No specific skills extracted.</p>
                 {% endif %}
             </div>
         </div>
         
         <!-- Education -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-white fw-bold"><i class="fas fa-graduation-cap me-2 text-warning"></i> Education</div>
-            <div class="card-body">
+        <div class="card mb-3" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3" style="color: #111827;">Education</h6>
                 {% if applicant.education_degree %}
-                    <h5>{{ applicant.education_degree }}</h5>
-                    <p class="text-muted mb-0">{{ applicant.education_institution }}</p>
+                    <h6 class="fw-bold mb-1" style="color: #111827; font-size: 0.95rem;">{{ applicant.education_degree }}</h6>
+                    <p class="text-muted mb-0" style="font-size: 0.85rem;">{{ applicant.education_institution }}</p>
                 {% else %}
-                    <p class="text-muted">Education details not updated.</p>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">No education details provided.</p>
                 {% endif %}
             </div>
         </div>
         
-        <!-- Projects -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-white fw-bold"><i class="fas fa-project-diagram me-2 text-info"></i> Projects</div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    {% for project in applicant.projects.all %}
-                    <li class="list-group-item">
-                        <h6 class="mb-1">{{ project.title }}</h6>
-                        {% if project.link %}
-                            <a href="{{ project.link }}" target="_blank" class="small text-decoration-none"><i class="fas fa-external-link-alt"></i> View Link</a>
+        <!-- Row for Projects & Certifications -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <!-- Projects -->
+                <div class="card h-100" style="border-radius: 12px; border: 1px solid #f3f4f6; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3" style="color: #111827;">Projects</h6>
+                        {% if applicant.projects.all %}
+                            {% for project in applicant.projects.all %}
+                            <div class="mb-2">
+                                <h6 class="mb-1" style="font-size: 0.9rem; font-weight: 600;">{{ project.title }}</h6>
+                                <p class="text-muted mb-0" style="font-size: 0.8rem;">{{ project.description|truncatechars:50 }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted mb-0" style="font-size: 0.9rem; opacity: 0.6;">No projects added</p>
                         {% endif %}
-                        <p class="small text-muted mb-0 mt-1">{{ project.description }}</p>
-                    </li>
-                    {% empty %}
-                    <li class="list-group-item text-center text-muted py-3">No projects added.</li>
-                    {% endfor %}
-                </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Certifications -->
+                <div class="card h-100" style="border-radius: 12px; border: 1px solid #f3f4f6; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3" style="color: #111827;">Certifications</h6>
+                        {% if applicant.certifications.all %}
+                            {% for cert in applicant.certifications.all %}
+                            <div class="mb-2">
+                                <h6 class="mb-1" style="font-size: 0.9rem; font-weight: 600;">{{ cert.title }}</h6>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted mb-0" style="font-size: 0.9rem; opacity: 0.6;">No certifications added</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW AI Profile Score Card matching mockup -->
+        <div class="card" style="border-radius: 12px; border: none; background-color: #10b981; color: white;">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3">AI Profile Score</h6>
+                <div style="background-color: rgba(255,255,255,0.3); border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin-bottom: 8px;">
+                    <div style="background-color: white; border-radius: 10px; height: 10px; width: {{ applicant.resume_score|default:0 }}%;"></div>
+                </div>
+                <p class="mb-0 mt-2" style="font-size: 0.85rem; font-weight: 500;">{{ applicant.resume_score|default:0 }}% &ndash; Improve your resume to increase score</p>
             </div>
         </div>
         
-        <!-- Certifications -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-white fw-bold"><i class="fas fa-certificate me-2 text-success"></i> Certifications</div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    {% for cert in applicant.certifications.all %}
-                    <li class="list-group-item">
-                        <h6 class="mb-1">{{ cert.title }}</h6>
-                        {% if cert.link %}
-                            <a href="{{ cert.link }}" target="_blank" class="small text-decoration-none"><i class="fas fa-external-link-alt"></i> View Credential</a>
-                        {% endif %}
-                        {% if cert.issue_date %}
-                            <span class="small text-muted d-block mt-1">Date: {{ cert.issue_date }}</span>
-                        {% endif %}
-                    </li>
-                    {% empty %}
-                    <li class="list-group-item text-center text-muted py-3">No certifications added.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}

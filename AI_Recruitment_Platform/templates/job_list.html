@@ -21,9 +21,17 @@
                     </div>
                     <div class="mt-3 mt-md-0 ms-md-4 text-end">
                         <small class="text-muted d-block mb-2">Posted: {{ job.posted_date|date:"M d, Y" }}</small>
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">Apply Now</a>
-                        {% else %}
+                        {% if user.is_authenticated and not user.is_superuser %}
+                            {% if job.id in applied_job_ids %}
+                                <button class="btn btn-success" disabled>
+                                    <i class="fas fa-check-circle me-1"></i> Applied
+                                </button>
+                            {% else %}
+                                <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">
+                                    Apply Now
+                                </a>
+                            {% endif %}
+                        {% elif not user.is_authenticated %}
                             <a href="{% url 'login' %}" class="btn btn-outline-primary">Login to Apply</a>
                         {% endif %}
                     </div>
@@ -32,9 +40,36 @@
         </div>
         {% empty %}
         <div class="col-12">
-            <div class="alert alert-info">
-                No jobs listed currently. Please check back later.
-            </div>
+            {% if no_jobs_found %}
+                <div class="card shadow-sm border-0 border-top border-warning border-4">
+                    <div class="card-body p-4 text-center">
+                        <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
+                        <h4>No Exact Matches Found</h4>
+                        <p class="text-muted">We couldn't find any open positions exactly matching your <strong>{{ candidate_category }}</strong> profile right now.</p>
+                        
+                        {% if missing_skills %}
+                            <div class="mt-4 p-3 rounded bg-light text-start d-inline-block text-center" style="max-width: 600px;">
+                                <h6 class="text-warning"><i class="fas fa-star me-2"></i>Boost Your Chances</h6>
+                                <p class="small text-muted mb-2">Most <strong>{{ candidate_category }}</strong> roles require the following skills which are missing from your resume/profile. Learning these will give you a better chance when jobs open up!</p>
+                                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                                    {% for skill in missing_skills %}
+                                        <span class="badge bg-white text-dark border border-warning shadow-sm px-3 py-2">
+                                            <i class="fas fa-plus text-warning me-1"></i> {{ skill }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="mt-4">
+                            <a href="{% url 'job_list' %}" class="btn btn-outline-primary">View All Available Jobs</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No jobs listed currently. Please check back later.
+                </div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

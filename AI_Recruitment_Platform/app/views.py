@@ -1,9 +1,9 @@
 import os
+import ast
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.conf import settings
 from django.conf import settings
 from .forms import UserRegistrationForm, ResumeUploadForm
 from .models import Applicant, Project, Certification
@@ -89,6 +89,9 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
+    # HR users should not access candidate dashboard
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     # Candidate Dashboard
     try:
         applicant = Applicant.objects.filter(user=request.user).last()
@@ -102,26 +105,14 @@ def dashboard(request):
     
     if applicant and applicant.resume_file:
         # Parse skills string to list
-        import ast
         try:
             skills_list = ast.literal_eval(applicant.actual_skills)
-        except:
+        except (ValueError, SyntaxError):
             skills_list = []
-            
-        # Re-extract text for suggestions
-        # Using safely stored score to avoid full re-parse if possible, 
-        # but generate_suggestions needs text.
-        text = applicant.actual_skills # Fallback if file read fails
-        try:
-            full_path = os.path.join(settings.MEDIA_ROOT, applicant.resume_file.name)
-            with open(full_path, 'rb') as f:
-                pdf_reader = PyPDF2.PdfReader(f)
-                text = ""
-                for page in pdf_reader.pages:
-                    text += page.extract_text()
-        except:
-             pass
-             
+
+        # Use cached resume text — no PDF re-read needed
+        text = applicant.resume_text or applicant.actual_skills
+
         suggestions = resume_parser.generate_suggestions(text, applicant.resume_score)
         missing_skills = resume_parser.get_missing_skills(applicant.predicted_category, text)
         
@@ -173,6 +164,8 @@ def dashboard(request):
 
 @login_required
 def upload_resume(request):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     if request.method == 'POST':
         form = ResumeUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -191,66 +184,33 @@ def upload_resume(request):
                 full_path = os.path.join(settings.MEDIA_ROOT, applicant.resume_file.name)
                 text = ""
                 page_count = 0
-                
+
                 with open(full_path, 'rb') as f:
                     pdf_reader = PyPDF2.PdfReader(f)
                     page_count = len(pdf_reader.pages)
                     for page in pdf_reader.pages:
                         text += page.extract_text()
-                
+
                 # 2. Extract & Predict
                 category = resume_parser.predict_category(text)
                 extracted_skills = resume_parser.extract_skills(text)
                 score = resume_parser.calculate_score(text, page_count)
                 level = resume_parser.estimate_experience_level(page_count, text, score)
-                
+
                 # Auto-fill Contact Info
                 contact_info = resume_parser.extract_contact_info(text)
                 if contact_info['phone'] and not applicant.phone:
                     applicant.phone = contact_info['phone']
-                
-                # --- NEW Extraction ---
+
                 # Education & Location
                 edu = resume_parser.extract_education(text)
                 loc = resume_parser.extract_location(text)
-                
+
                 if edu['degree']: applicant.education_degree = edu['degree']
                 if edu['institution']: applicant.education_institution = edu['institution']
                 if loc and not applicant.location: applicant.location = loc
-                
-                # Projects & Certifications
-                # extracted_projects = resume_parser.parse_projects(text)
-                # extracted_certs = resume_parser.parse_certifications(text)
-                
-                # Save Applicant Updates
-                applicant.save()
-                
-                # Update Related Models (DISABLED as per user request to keep manual control)
-                # Project.objects.filter(applicant=applicant).delete()
-                # Certification.objects.filter(applicant=applicant).delete()
-                
-                # for proj in extracted_projects:
-                #     Project.objects.create(
-                #         applicant=applicant,
-                #         title=proj['title'],
-                #         description=proj['description']
-                #     )
-                    
-                # for cert in extracted_certs:
-                #     Certification.objects.create(
-                #         applicant=applicant,
-                #         title=cert['title']
-                #     )
-                # ----------------------
-                
-                # Optional: Log extracted email if useful, or use it for cross-verification
-                # if contact_info['email']:
-                #     print(f"Extracted Email: {contact_info['email']}")
 
-
-                
-                # 3. Update Model
-                # Multi-Label Prediction
+                # 3. Update Model with Multi-Label Prediction
                 multi_pred = resume_parser.predict_categories_multi(text, threshold=0.3)
                 applicant.predicted_category = multi_pred['primary_category']
                 applicant.category_scores = {cat['category']: cat['confidence'] for cat in multi_pred['all_categories']}
@@ -258,6 +218,8 @@ def upload_resume(request):
                 applicant.resume_score = score
                 applicant.page_count = page_count
                 applicant.experience_level = level
+                # Cache raw text so other views don't need to re-read the PDF
+                applicant.resume_text = text
                 applicant.save()
                 
                 category_tags = ", ".join(multi_pred['tags'])
@@ -274,26 +236,35 @@ def upload_resume(request):
 
 @login_required
 def result_view(request):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     applicant = get_object_or_404(Applicant, user=request.user)
-    
-    # Simple Recommendation Logic
-    # In production, this would use a proper recommendation engine method from prediction.py
+
     from dashboard.models import Job
     recommended_jobs = Job.objects.filter(
-        title__icontains=applicant.predicted_category.split(' ')[0] # Basic keyword match
+        title__icontains=applicant.predicted_category.split(' ')[0]
     )[:5]
-    
+
+    # Use ast.literal_eval — safe alternative to eval()
+    try:
+        skills = ast.literal_eval(applicant.actual_skills) if applicant.actual_skills else []
+    except (ValueError, SyntaxError):
+        skills = []
+
     context = {
         'applicant': applicant,
         'jobs': recommended_jobs,
-        'skills': eval(applicant.actual_skills) if applicant.actual_skills else []
+        'skills': skills
     }
     return render(request, 'result.html', context)
 
 @login_required
 def apply_job(request, job_id):
+    if request.user.is_superuser:
+        messages.error(request, "HR accounts cannot apply for jobs.")
+        return redirect('hr_dashboard')
     from dashboard.models import Job, JobApplication
-    
+
     job = get_object_or_404(Job, id=job_id)
     applicant = get_object_or_404(Applicant, user=request.user)
     
@@ -301,21 +272,8 @@ def apply_job(request, job_id):
     if JobApplication.objects.filter(user=request.user, job=job).exists():
         messages.warning(request, f"You have already applied for {job.title} at {job.company}.")
     else:
-        # Calculate AI Match Score
-        # We need the full text of the resume. It's not stored in Applicant model directly as text,
-        # but we can re-extract it or rely on extracted_skills? 
-        # For better accuracy, let's re-read the file since we didn't save the full text on upload (only skills/category).
-        # Optimization: In a real app, save 'raw_text' to Applicant model.
-        
-        full_text = ""
-        try:
-            full_path = os.path.join(settings.MEDIA_ROOT, applicant.resume_file.name)
-            with open(full_path, 'rb') as f:
-                pdf_reader = PyPDF2.PdfReader(f)
-                for page in pdf_reader.pages:
-                    full_text += page.extract_text()
-        except:
-            full_text = applicant.actual_skills # Fallback to just skills string if file read fails
+        # Use cached resume text — no need to re-read the PDF file
+        full_text = applicant.resume_text or applicant.actual_skills
             
         from app.prediction import resume_parser
         match_percentage = resume_parser.calculate_match_percentage(
@@ -337,8 +295,10 @@ def apply_job(request, job_id):
 
 @login_required
 def edit_profile(request):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     from .forms import ProfileUpdateForm, ApplicantProfileForm
-    
+
     applicant, created = Applicant.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
@@ -354,10 +314,9 @@ def edit_profile(request):
             applicant.last_name = request.user.last_name
             applicant.save()
             
-            # Re-trigger AI if resume uploaded
+            # Re-trigger AI if a new resume was uploaded
             if 'resume_file' in request.FILES:
                 try:
-                    # Basic re-parsing logic (similar to upload_resume)
                     full_path = os.path.join(settings.MEDIA_ROOT, applicant.resume_file.name)
                     text = ""
                     with open(full_path, 'rb') as f:
@@ -365,17 +324,19 @@ def edit_profile(request):
                         page_count = len(pdf_reader.pages)
                         for page in pdf_reader.pages:
                             text += page.extract_text()
-                    
+
                     category = resume_parser.predict_category(text)
                     extracted_skills = resume_parser.extract_skills(text)
                     score = resume_parser.calculate_score(text, page_count)
                     level = resume_parser.estimate_experience_level(page_count, text, score)
-                    
+
                     applicant.predicted_category = category
                     applicant.actual_skills = str(extracted_skills)
                     applicant.resume_score = score
                     applicant.page_count = page_count
                     applicant.experience_level = level
+                    # Update cached text so subsequent views stay consistent
+                    applicant.resume_text = text
                     applicant.save()
                     messages.info(request, "Resume re-analyzed successfully!")
                 except Exception as e:
@@ -395,6 +356,8 @@ def edit_profile(request):
 
 @login_required
 def add_project(request):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     from .forms import ProjectForm
     applicant = get_object_or_404(Applicant, user=request.user)
     
@@ -412,6 +375,8 @@ def add_project(request):
 
 @login_required
 def add_certification(request):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     from .forms import CertificationForm
     applicant = get_object_or_404(Applicant, user=request.user)
     
@@ -429,6 +394,8 @@ def add_certification(request):
 
 @login_required
 def my_applications(request):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     from dashboard.models import JobApplication
     applications = JobApplication.objects.filter(user=request.user).select_related('job').order_by('-applied_date')
     
@@ -436,8 +403,10 @@ def my_applications(request):
 
 @login_required
 def my_profile(request):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     applicant = get_object_or_404(Applicant, user=request.user)
-    
+
     import ast
     try:
         skills = ast.literal_eval(applicant.actual_skills)
@@ -452,6 +421,8 @@ def my_profile(request):
 
 @login_required
 def edit_project(request, project_id):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     from .forms import ProjectForm
     project = get_object_or_404(Project, id=project_id, applicant__user=request.user)
     
@@ -467,6 +438,8 @@ def edit_project(request, project_id):
 
 @login_required
 def delete_project(request, project_id):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     project = get_object_or_404(Project, id=project_id, applicant__user=request.user)
     project.delete()
     messages.success(request, 'Project Deleted!')
@@ -474,6 +447,8 @@ def delete_project(request, project_id):
 
 @login_required
 def edit_certification(request, cert_id):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     from .forms import CertificationForm
     cert = get_object_or_404(Certification, id=cert_id, applicant__user=request.user)
     
@@ -489,6 +464,8 @@ def edit_certification(request, cert_id):
 
 @login_required
 def delete_certification(request, cert_id):
+    if request.user.is_superuser:
+        return redirect('hr_dashboard')
     cert = get_object_or_404(Certification, id=cert_id, applicant__user=request.user)
     cert.delete()
     messages.success(request, 'Certification Deleted!')
