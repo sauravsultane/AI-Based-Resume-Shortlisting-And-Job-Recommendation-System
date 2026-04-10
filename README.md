@@ -392,7 +392,7 @@ AI-Based-Resume-Shortlisting-And-Job-Recommendation-System/
 | Component | Details |
 |-----------|---------|
 | **Vectorization** | TF-IDF (Term Frequency-Inverse Document Frequency) |
-| **Classifier** | OneVsRestClassifier with KNeighborsClassifier |
+| **Classifier** | OneVsRestClassifier with Random Forest |
 | **Model Type** | Multi-label Classification |
 | **Threshold** | 0.3 (configurable) |
 
