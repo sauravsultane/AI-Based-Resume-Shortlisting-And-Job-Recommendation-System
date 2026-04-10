@@ -7,33 +7,37 @@
     <div class="row">
         {% for job in jobs %}
         <div class="col-12 mb-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-2">
+                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start">
                     <div class="flex-grow-1">
-                        <h5 class="card-title text-primary mb-1">{{ job.title }}</h5>
-                        <h6 class="card-subtitle text-muted mb-2">{{ job.company }}</h6>
-                        <div class="d-flex flex-wrap text-secondary small mb-2">
-                            <span class="me-3"><i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}</span>
-                            <span class="me-3"><i class="fas fa-briefcase me-1"></i>{{ job.experience }} years</span>
-                            <span><i class="fas fa-rupee-sign me-1"></i>{{ job.salary }}</span>
+                        <h5 class="card-title text-primary fw-bold mb-1" style="color: #3b82f6 !important;">{{ job.title }}</h5>
+                        <h6 class="card-subtitle text-secondary mb-3" style="font-weight: 500;">{{ job.company }}</h6>
+                        <div class="d-flex flex-wrap align-items-center text-secondary small mb-3 gap-4">
+                            <span><i class="fas fa-map-marker-alt me-2" style="color: #d9534f;"></i>{{ job.location }}</span>
+                            <span><i class="fas fa-briefcase me-2" style="color: #8b5a2b;"></i>{{ job.experience }} {% if not 'year' in job.experience|lower %}years{% endif %}</span>
+                            <span class="text-success fw-bold"><i class="fas fa-rupee-sign me-1"></i>{{ job.salary }}</span>
                         </div>
-                        <p class="card-text text-truncate mb-0" style="max-width: 600px;">{{ job.description }}</p>
+                        <div class="job-skills-container d-flex flex-wrap gap-2" data-skills="{{ job.required_skills }}">
+                            <!-- Skills rendered via JS -->
+                        </div>
                     </div>
-                    <div class="mt-3 mt-md-0 ms-md-4 text-end">
-                        <small class="text-muted d-block mb-2">Posted: {{ job.posted_date|date:"M d, Y" }}</small>
+                    <div class="mt-3 mt-md-0 ms-md-4 text-start text-md-end d-flex flex-column justify-content-between h-100">
+                        <small class="text-muted d-block mb-4" style="font-size: 0.8rem;">Posted: {{ job.posted_date|date:"M d, Y" }}</small>
+                        <div class="mt-auto">
                         {% if user.is_authenticated and not user.is_superuser %}
                             {% if job.id in applied_job_ids %}
-                                <button class="btn btn-success" disabled>
-                                    <i class="fas fa-check-circle me-1"></i> Applied
-                                </button>
+                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-4 py-2" style="font-size: 0.9rem; font-weight: 500;">
+                                    <i class="fas fa-check me-1"></i> Applied
+                                </span>
                             {% else %}
-                                <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">
+                                <a href="{% url 'apply_job' job.id %}" class="btn btn-sm btn-primary rounded-pill px-4 py-2 shadow-sm" style="font-weight: 500;">
                                     Apply Now
                                 </a>
                             {% endif %}
                         {% elif not user.is_authenticated %}
-                            <a href="{% url 'login' %}" class="btn btn-outline-primary">Login to Apply</a>
+                            <a href="{% url 'login' %}" class="btn btn-sm btn-outline-primary rounded-pill px-4 py-2">Login to Apply</a>
                         {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,4 +78,35 @@
         {% endfor %}
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Pastel colors for skill badges
+        const badgeColors = [
+            'bg-primary bg-opacity-10 text-primary',
+            'bg-success bg-opacity-10 text-success',
+            'bg-danger bg-opacity-10 text-danger',
+            'bg-warning bg-opacity-10 text-warning text-dark',
+            'bg-info bg-opacity-10 text-info text-dark',
+            'bg-secondary bg-opacity-10 text-secondary'
+        ];
+
+        document.querySelectorAll('.job-skills-container').forEach(container => {
+            const skillsData = container.getAttribute('data-skills');
+            if (skillsData && skillsData.trim() !== '') {
+                // Skills are typically comma-separated
+                const skillsList = skillsData.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                
+                skillsList.forEach((skill, index) => {
+                    const colorClass = badgeColors[index % badgeColors.length];
+                    const badge = document.createElement('span');
+                    badge.className = `badge rounded-pill ${colorClass} border-0 px-3 py-2 fw-normal`;
+                    badge.style.fontSize = '0.75rem';
+                    badge.textContent = skill;
+                    container.appendChild(badge);
+                });
+            }
+        });
+    });
+</script>
 {% endblock %}

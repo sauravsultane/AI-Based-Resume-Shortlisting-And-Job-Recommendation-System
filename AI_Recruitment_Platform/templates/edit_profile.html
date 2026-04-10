@@ -6,81 +6,76 @@
     <div class="row">
         <!-- Main Profile Form -->
         <div class="col-md-8">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i> Edit Profile</h4>
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header border-0 bg-primary bg-gradient text-white py-3" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-pencil-alt me-2"></i> Edit Profile</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         
-                        <h5 class="text-secondary mb-3">Personal Details</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">First Name</label>
+                        <h6 class="text-dark fw-bold mb-3">Personal Details</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
                                 {{ user_form.first_name.errors }}
-                                <input type="text" name="first_name" class="form-control" value="{{ user_form.first_name.value|default:'' }}">
+                                <input type="text" name="first_name" class="form-control rounded-3 py-2 text-secondary" placeholder="First Name" value="{{ user_form.first_name.value|default:'' }}">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Last Name</label>
+                            <div class="col-md-6">
                                 {{ user_form.last_name.errors }}
-                                <input type="text" name="last_name" class="form-control" value="{{ user_form.last_name.value|default:'' }}">
+                                <input type="text" name="last_name" class="form-control rounded-3 py-2 text-secondary" placeholder="Last Name" value="{{ user_form.last_name.value|default:'' }}">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Email</label>
+                            <div class="col-md-6">
                                 {{ user_form.email.errors }}
-                                <input type="email" name="email" class="form-control" value="{{ user_form.email.value|default:'' }}">
+                                <input type="email" name="email" class="form-control rounded-3 py-2 text-secondary" placeholder="Email Address" value="{{ user_form.email.value|default:'' }}">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Phone</label>
+                            <div class="col-md-6">
                                 {{ profile_form.phone.errors }}
-                                <input type="text" name="phone" class="form-control" value="{{ profile_form.phone.value|default:'' }}">
+                                <input type="text" name="phone" class="form-control rounded-3 py-2 text-secondary" placeholder="Phone Number" value="{{ profile_form.phone.value|default:'' }}">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Location</label>
+                            <div class="col-md-6">
                                 {{ profile_form.location.errors }}
-                                <input type="text" name="location" class="form-control" value="{{ profile_form.location.value|default:'' }}">
+                                <input type="text" name="location" class="form-control rounded-3 py-2 text-secondary" placeholder="Location" value="{{ profile_form.location.value|default:'' }}">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Gender</label>
+                            <div class="col-md-6">
                                 {{ profile_form.gender.errors }}
-                                {{ profile_form.gender }}
+                                <div class="form-control rounded-3 py-0 border-0 p-0" >
+                                    <select name="gender" class="form-select rounded-3 py-2 text-secondary" >
+                                        {% for val, text in profile_form.gender.field.choices %}
+                                            <option value="{{ val }}" {% if profile_form.gender.value == val %}selected{% endif %}>{{ text }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Languages (Comma separated)</label>
+                            <div class="col-12">
                                 {{ profile_form.languages.errors }}
-                                <input type="text" name="languages" class="form-control" value="{{ profile_form.languages.value|default:'' }}">
+                                <input type="text" name="languages" class="form-control rounded-3 py-2 text-secondary" placeholder="Languages (Comma separated)" value="{{ profile_form.languages.value|default:'' }}">
                             </div>
                         </div>
 
-                        <hr>
-                        <h5 class="text-secondary mb-3">Education</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Degree</label>
+                        <h6 class="text-dark fw-bold mb-3">Education</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
                                 {{ profile_form.education_degree.errors }}
-                                <input type="text" name="education_degree" class="form-control" value="{{ profile_form.education_degree.value|default:'' }}">
+                                <!-- If degree is missing, we highlight the border -->
+                                <input type="text" name="education_degree" class="form-control rounded-3 py-2 {% if not profile_form.education_degree.value %}border-primary text-primary{% else %}text-secondary{% endif %}" placeholder="Degree" value="{{ profile_form.education_degree.value|default:'' }}" style="{% if not profile_form.education_degree.value %}box-shadow: 0 0 0 0.1rem rgba(13, 110, 253, 0.25);{% endif %}">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Institution/University</label>
+                            <div class="col-md-6">
                                 {{ profile_form.education_institution.errors }}
-                                <input type="text" name="education_institution" class="form-control" value="{{ profile_form.education_institution.value|default:'' }}">
+                                <input type="text" name="education_institution" class="form-control rounded-3 py-2 text-secondary px-3" placeholder="Institution / University" value="{{ profile_form.education_institution.value|default:'' }}">
                             </div>
                         </div>
 
-                        <hr>
-                        <h5 class="text-secondary mb-3">Resume</h5>
-                        <div class="mb-3">
-                            <label class="form-label">Update Resume (PDF)</label>
+                        <h6 class="text-dark fw-bold mb-3">Resume</h6>
+                        <div class="mb-4">
                             {% if applicant.resume_file %}
-                                <p class="small text-muted">Current: <a href="{{ applicant.resume_file.url }}" target="_blank">{{ applicant.resume_file.name }}</a></p>
+                                <p class="small text-muted mb-2">Current: <a href="{{ applicant.resume_file.url }}" target="_blank" class="text-decoration-underline">{{ applicant.resume_file.name }}</a></p>
                             {% endif %}
-                            <input type="file" name="resume_file" class="form-control">
-                            <div class="form-text text-warning"><i class="fas fa-exclamation-triangle"></i> Uploading a new resume will re-trigger AI analysis and overwrite current skills/score.</div>
+                            <input type="file" name="resume_file" class="form-control rounded-3 py-2 text-secondary mb-2">
+                            <div class="form-text text-warning small fw-bold"><i class="fas fa-exclamation-triangle"></i> Uploading a new resume will re-trigger AI analysis.</div>
                         </div>
 
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+                            <button type="submit" class="btn btn-success fw-bold py-2 rounded-3 fs-6" style="background-color: #10b981; border-color: #10b981;">Save Changes</button>
                         </div>
                     </form>
                 </div>
@@ -90,62 +85,62 @@
         <!-- Portfolio Side Panel (Projects & Certifications) -->
         <div class="col-md-4">
             <!-- Projects -->
-            <div class="card shadow mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 text-primary">Projects</h5>
-                    <a href="{% url 'add_project' %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i> Add</a>
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header border-0 bg-white d-flex justify-content-between align-items-center pt-4 pb-2 px-4" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h6 class="mb-0 fw-bold text-dark">Projects</h6>
+                    <a href="{% url 'add_project' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1"><i class="fas fa-plus small"></i> Add</a>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body px-4 pb-4">
                     <ul class="list-group list-group-flush">
                         {% for project in applicant.projects.all %}
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start px-0 border-light py-3">
                             <div>
-                                <h6 class="mb-1">{{ project.title }}</h6>
+                                <h6 class="mb-1 text-dark fw-bold">{{ project.title }}</h6>
                                 {% if project.link %}
-                                    <a href="{{ project.link }}" target="_blank" class="small text-decoration-none"><i class="fas fa-external-link-alt"></i> View Link</a>
+                                    <a href="{{ project.link }}" target="_blank" class="small text-primary text-decoration-none d-block mb-1"><i class="fas fa-external-link-alt"></i> View Link</a>
                                 {% endif %}
                                 {% if project.description %}
-                                    <p class="small text-muted mb-0 text-truncate" style="max-width: 250px;">{{ project.description }}</p>
+                                    <p class="small text-muted mb-0 text-truncate" style="max-width: 200px;">{{ project.description }}</p>
                                 {% endif %}
                             </div>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'edit_project' project.id %}" class="btn btn-outline-secondary" title="Edit"><i class="fas fa-pen"></i></a>
-                                <a href="{% url 'delete_project' project.id %}" class="btn btn-outline-danger" title="Delete" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
+                            <div class="btn-group btn-group-sm ms-2">
+                                <a href="{% url 'edit_project' project.id %}" class="btn btn-light text-secondary border-0" title="Edit"><i class="fas fa-pen"></i></a>
+                                <a href="{% url 'delete_project' project.id %}" class="btn btn-light text-danger border-0" title="Delete" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
                             </div>
                         </li>
                         {% empty %}
-                        <li class="list-group-item text-center text-muted small py-3">No projects added yet.</li>
+                        <li class="list-group-item text-start text-muted small px-0 border-0">No projects added yet.</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
 
             <!-- Certifications -->
-            <div class="card shadow">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 text-info">Certifications</h5>
-                    <a href="{% url 'add_certification' %}" class="btn btn-sm btn-outline-info"><i class="fas fa-plus"></i> Add</a>
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header border-0 bg-white d-flex justify-content-between align-items-center pt-4 pb-2 px-4" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h6 class="mb-0 fw-bold text-dark">Certifications</h6>
+                    <a href="{% url 'add_certification' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1"><i class="fas fa-plus small"></i> Add</a>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body px-4 pb-4">
                     <ul class="list-group list-group-flush">
                         {% for cert in applicant.certifications.all %}
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start px-0 border-light py-3">
                             <div>
-                                <h6 class="mb-1">{{ cert.title }}</h6>
+                                <h6 class="mb-1 text-dark fw-bold">{{ cert.title }}</h6>
                                 {% if cert.link %}
-                                    <a href="{{ cert.link }}" target="_blank" class="small text-decoration-none me-2"><i class="fas fa-certificate"></i> View Credential</a>
+                                    <a href="{{ cert.link }}" target="_blank" class="small text-primary text-decoration-none d-block mb-1"><i class="fas fa-certificate"></i> View Credential</a>
                                 {% endif %}
                                 {% if cert.issue_date %}
-                                    <span class="small text-muted d-block">Issued: {{ cert.issue_date }}</span>
+                                    <span class="small text-muted d-block mt-1">Issued: {{ cert.issue_date }}</span>
                                 {% endif %}
                             </div>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'edit_certification' cert.id %}" class="btn btn-outline-secondary" title="Edit"><i class="fas fa-pen"></i></a>
-                                <a href="{% url 'delete_certification' cert.id %}" class="btn btn-outline-danger" title="Delete" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
+                            <div class="btn-group btn-group-sm ms-2">
+                                <a href="{% url 'edit_certification' cert.id %}" class="btn btn-light text-secondary border-0" title="Edit"><i class="fas fa-pen"></i></a>
+                                <a href="{% url 'delete_certification' cert.id %}" class="btn btn-light text-danger border-0" title="Delete" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
                             </div>
                         </li>
                         {% empty %}
-                        <li class="list-group-item text-center text-muted small py-3">No certifications added yet.</li>
+                        <li class="list-group-item text-start text-muted small px-0 border-0">No certifications added yet.</li>
                         {% endfor %}
                     </ul>
                 </div>

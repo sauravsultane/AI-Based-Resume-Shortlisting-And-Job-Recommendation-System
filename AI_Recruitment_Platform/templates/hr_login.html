@@ -1,24 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <div class="card p-4 border-warning">
-            <div class="text-center mb-4">
-                <i class="fas fa-user-tie fa-3x text-warning"></i>
-                <h3 class="mt-2">HR Portal Login</h3>
-                <p class="text-muted">Authorized Personnel Only</p>
-            </div>
-            
-            <form method="POST">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-warning w-100 fw-bold">Login to Dashboard</button>
-            </form>
-            
-            <div class="mt-3 text-center">
-                <a href="{% url 'hr_register' %}" class="fw-bold text-warning">New HR? Register Here</a>
-                <br>
-                <a href="{% url 'login' %}" class="small text-muted mt-2 d-inline-block">Candidate Login</a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-warning text-dark text-center py-4 rounded-top">
+                     <h4 class="mb-0 fw-bold"><i class="fas fa-user-tie me-2"></i> HR Portal Login</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-center text-muted mb-4 small fw-bold">Authorized Personnel Only</p>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-warning"></i></span>
+                                <input type="text" name="username" class="form-control border-start-0" placeholder="Enter username" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-warning"></i></span>
+                                <input type="password" name="password" class="form-control border-start-0" placeholder="Enter password" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                             <button type="submit" class="btn btn-warning btn-lg shadow-sm fw-bold">Login to Dashboard <i class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="{% url 'login' %}" class="small text-muted text-decoration-none"><i class="fas fa-exchange-alt me-1"></i> Switch to Candidate Login</a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-light py-3 rounded-bottom">
+                    <p class="mb-0 text-muted">New HR? <a href="{% url 'hr_register' %}" class="text-warning fw-bold text-decoration-none" style="text-shadow: 0px 0px 1px rgba(0,0,0,0.1);">Register Here</a></p>
+                </div>
             </div>
         </div>
     </div>

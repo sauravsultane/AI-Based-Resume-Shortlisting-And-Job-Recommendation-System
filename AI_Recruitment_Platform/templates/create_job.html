@@ -1,43 +1,57 @@
 {% extends 'hr_base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card p-4">
-            <h3>Post a New Job</h3>
-            <form method="POST">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Job Title</label>
-                    <input type="text" name="title" class="form-control" required>
+<div class="container mt-2">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0 rounded-4 mb-5">
+                <div class="card-header border-0 bg-primary bg-gradient text-white py-3" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2"></i> {% if is_edit %}Edit Job{% else %}Post a New Job{% endif %}</h5>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Company</label>
-                    <input type="text" name="company" class="form-control" required>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small">Job Title</label>
+                                <input type="text" name="title" class="form-control rounded-3 py-2 text-secondary" placeholder="e.g. Senior Software Engineer" value="{{ job.title|default:'' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small">Company</label>
+                                <input type="text" name="company" class="form-control rounded-3 py-2 text-secondary" placeholder="e.g. OpenAI" value="{{ job.company|default:'' }}" required>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark small">Location</label>
+                                <input type="text" name="location" class="form-control rounded-3 py-2 text-secondary" placeholder="e.g. Remote, San Francisco" value="{{ job.location|default:'' }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark small">Salary</label>
+                                <input type="text" name="salary" class="form-control rounded-3 py-2 text-secondary" placeholder="e.g. $120k - $150k" value="{{ job.salary|default:'' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark small">Experience</label>
+                                <input type="text" name="experience" class="form-control rounded-3 py-2 text-secondary" placeholder="e.g. 2-5 Yrs" value="{{ job.experience|default:'' }}" required>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-dark small">Description</label>
+                                <textarea name="description" class="form-control rounded-3 py-2 text-secondary" rows="5" placeholder="Describe the role, responsibilities, and benefits..." required>{{ job.description|default:'' }}</textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-dark small">Required Skills</label>
+                                <input type="text" name="skills" class="form-control rounded-3 py-2 text-secondary" placeholder="e.g. Python, Django, React, SQL (Comma separated)" value="{{ job.required_skills|default:'' }}">
+                                <div class="form-text text-muted small mt-1"><i class="fas fa-info-circle me-1"></i> These will be verified by the AI candidate matcher.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4 pt-3">
+                            <button type="submit" class="btn btn-success flex-grow-1 fw-bold py-2 rounded-3" style="background-color: #10b981; border-color: #10b981;">{% if is_edit %}Update Job Posting{% else %}Publish Job Posting{% endif %} <i class="fas fa-rocket ms-2"></i></button>
+                            <a href="{% url 'hr_dashboard' %}" class="btn btn-light text-secondary border px-4 py-2 rounded-3 fw-bold">Cancel</a>
+                        </div>
+                    </form>
                 </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Location</label>
-                        <input type="text" name="location" class="form-control" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Salary</label>
-                        <input type="text" name="salary" class="form-control">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Experience</label>
-                        <input type="text" name="experience" class="form-control" placeholder="e.g. 2-5 Yrs" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control" rows="4" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Required Skills</label>
-                    <input type="text" name="skills" class="form-control" placeholder="e.g. Python, Django, SQL">
-                </div>
-                <button type="submit" class="btn btn-primary">Post Job</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>

@@ -53,6 +53,28 @@ def create_job(request):
     return render(request, 'create_job.html')
 
 @login_required
+def edit_job(request, job_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+        
+    job = get_object_or_404(Job, id=job_id)
+    
+    if request.method == 'POST':
+        job.title = request.POST.get('title')
+        job.company = request.POST.get('company')
+        job.location = request.POST.get('location')
+        job.salary = request.POST.get('salary')
+        job.experience = request.POST.get('experience')
+        job.description = request.POST.get('description')
+        job.required_skills = request.POST.get('skills')
+        job.save()
+        
+        messages.success(request, 'Job Updated Successfully')
+        return redirect('hr_dashboard')
+        
+    return render(request, 'create_job.html', {'job': job, 'is_edit': True})
+
+@login_required
 def trigger_scraping(request):
     if not request.user.is_superuser:
         return redirect('dashboard')
@@ -137,6 +159,20 @@ def job_applications(request, job_id):
     })
 
 @login_required
+def ai_shortlist_job(request, job_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+        
+    job = get_object_or_404(Job, id=job_id)
+    
+    applications_to_shortlist = JobApplication.objects.filter(job=job, match_score__gte=70, status='PENDING')
+    count = applications_to_shortlist.update(status='SHORTLISTED')
+    
+    messages.success(request, f"AI Auto-Shortlisted {count} candidates with match score > 70%!")
+    return redirect('job_applications', job_id=job.id)
+
+
+@login_required
 def delete_job(request, job_id):
     if not request.user.is_superuser:
         return redirect('dashboard')
@@ -189,6 +225,8 @@ def job_list(request):
                 JobApplication.objects.filter(user=request.user)
                 .values_list('job_id', flat=True)
             )
+            # Only show non-applied jobs
+            jobs = jobs.exclude(id__in=applied_job_ids)
 
     if request.user.is_authenticated and not request.user.is_superuser:
         try:

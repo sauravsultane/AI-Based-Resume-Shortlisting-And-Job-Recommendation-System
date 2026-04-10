@@ -87,30 +87,28 @@
     
     <div class="nav-links">
         <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-            Dashboard
+            <i class="fas fa-chart-pie fa-fw me-2"></i> Dashboard
         </a>
         <a href="{% url 'edit_profile' %}" class="{% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}">
-            Edit Profile
+            <i class="fas fa-user-edit fa-fw me-2"></i> Edit Profile
         </a>
         <a href="{% url 'my_profile' %}" class="{% if request.resolver_match.url_name == 'my_profile' %}active{% endif %}">
-            My Profile
+            <i class="fas fa-user fa-fw me-2"></i> My Profile
         </a>
         <a href="{% url 'upload_resume' %}" class="{% if request.resolver_match.url_name == 'upload_resume' %}active{% endif %}">
-            Update Resume
+            <i class="fas fa-file-upload fa-fw me-2"></i> Update Resume
         </a>
         <a href="{% url 'job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">
-            Find Jobs
+            <i class="fas fa-search fa-fw me-2"></i> Find Jobs
         </a>
-        {% if request.resolver_match.url_name == 'my_applications' %}
-        <a href="{% url 'my_applications' %}" class="active">
-            My Applications
+        <a href="{% url 'my_applications' %}" class="{% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">
+            <i class="fas fa-clipboard-list fa-fw me-2"></i> My Applications
         </a>
-        {% endif %}
     </div>
 
     <div class="sidebar-logout">
         <a href="{% url 'logout' %}">
-            Logout
+            <i class="fas fa-sign-out-alt fa-fw me-2"></i> Logout
         </a>
     </div>
 </div>

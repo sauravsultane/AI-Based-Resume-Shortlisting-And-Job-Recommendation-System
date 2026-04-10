@@ -462,24 +462,32 @@ class ResumeParser:
             print(f"BERT Error: {e}")
             bert_score = 0
 
-        # 2. Hard Skill Match (30% Weight)
-        # Specific technical skills are still crucial
-        resume_skills = set(self.extract_skills(resume_text))
-        
+        # 2. Hard Skill Match 
+        # Check specifically for the target skills in the text, avoiding purely 'common_skills' limitations
         if isinstance(job_skills, str):
             target_skills = set(s.strip().lower() for s in job_skills.split(',') if s.strip())
         else:
-            target_skills = set(job_skills)
+            target_skills = set(s.strip().lower() for s in job_skills if s.strip())
             
         if not target_skills:
             skill_score = 0
         else:
-            intersection = resume_skills.intersection(target_skills)
-            skill_score = (len(intersection) / len(target_skills)) * 100
+            cleaned_resume = self.clean_text(resume_text).lower()
+            found_target_skills = set()
+            
+            # Check for each target skill directly in the text
+            for t_skill in target_skills:
+                if t_skill in cleaned_resume:
+                    found_target_skills.add(t_skill)
+                    
+            skill_score = (len(found_target_skills) / len(target_skills)) * 100
             
         # Weighted Final Score
-        # We give BERT more weight as it captures experience level, domain, and soft skills context
-        final_score = (bert_score * 0.7) + (skill_score * 0.3)
+        # Cosine similarity for full documents naturally averages lower. Scale it up by 1.3 for UI presentation.
+        scaled_bert = min(bert_score * 1.3, 100)
+        
+        # 50% BERT, 50% Skill overlap (skills are heavily weighted)
+        final_score = (scaled_bert * 0.5) + (skill_score * 0.5)
         
         return round(min(final_score, 100), 1)
 

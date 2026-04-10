@@ -4,36 +4,38 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">{{ title }}</h4>
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header border-0 bg-primary bg-gradient text-white py-3" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2"></i>{{ title }}</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="post">
                         {% csrf_token %}
-                        {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
-                            {{ field.errors }}
-                            {% if field.field.widget.input_type == "textarea" %}
-                                <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" rows="3">{{ field.value|default:'' }}</textarea>
-                            {% else %}
-                                <input type="{{ field.field.widget.input_type|default:'text' }}" 
-                                       name="{{ field.name }}" 
-                                       id="{{ field.id_for_label }}" 
-                                       class="form-control" 
-                                       value="{{ field.value|default:'' }}">
-                            {% endif %}
-                            {% if field.help_text %}
-                                <div class="form-text text-muted">{{ field.help_text }}</div>
-                            {% endif %}
+                        <div class="row g-3">
+                            {% for field in form %}
+                            <div class="col-12">
+                                {{ field.errors }}
+                                {% if field.field.widget.input_type == "textarea" %}
+                                    <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control rounded-3 py-2 text-secondary" rows="4" placeholder="{{ field.label }}">{{ field.value|default:'' }}</textarea>
+                                {% else %}
+                                    <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                                           name="{{ field.name }}" 
+                                           id="{{ field.id_for_label }}" 
+                                           class="form-control rounded-3 py-2 text-secondary" 
+                                           value="{{ field.value|default:'' }}"
+                                           placeholder="{{ field.label }}">
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted small mt-1">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                         
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">Save</button>
-                            <a href="{% url 'edit_profile' %}" class="btn btn-secondary">Cancel</a>
+                        <div class="d-flex gap-2 mt-4 pt-2">
+                            <button type="submit" class="btn btn-success flex-grow-1 fw-bold py-2 rounded-3" style="background-color: #10b981; border-color: #10b981;">Save</button>
+                            <a href="{% url 'edit_profile' %}" class="btn btn-light text-secondary border px-4 py-2 rounded-3 fw-bold">Cancel</a>
                         </div>
                     </form>
                 </div>

@@ -6,7 +6,7 @@
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-8">
+    <div class="col-md-7">
         <h2>{{ job.title }}</h2>
         <h5 class="text-muted">{{ job.company }} | {{ job.location }}</h5>
         <div class="mt-2">
@@ -15,9 +15,9 @@
             <span class="badge bg-info text-dark">{{ applications.count }} Applicants</span>
         </div>
     </div>
-    <div class="col-md-4 text-end">
-        <a href="#" class="btn btn-outline-primary"><i class="fas fa-edit"></i> Edit Job</a>
-        <button class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i> Close Job</button>
+    <div class="col-md-5 text-end d-flex justify-content-end align-items-start gap-2">
+        <a href="{% url 'ai_shortlist_job' job.id %}" class="btn btn-success fw-bold shadow-sm" onclick="return confirm('Auto-shortlist all pending candidates with a match score of 70% or higher?')"><i class="fas fa-magic me-1"></i> AI Shortlist > 70%</a>
+        <a href="{% url 'edit_job' job.id %}" class="btn btn-outline-primary shadow-sm"><i class="fas fa-edit"></i> Edit Job</a>
     </div>
 </div>
 
